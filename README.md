@@ -135,8 +135,16 @@ DELETE /tasks/:id
 
 ---
 
-Swagger Documentation
-http://localhost:5000/api-docs
+## Live Demo
+
+Frontend:
+https://task-manager-web-app-wine.vercel.app/
+
+Backend API:
+https://task-manager-web-app-a0jz.onrender.com/
+
+Swagger Docs:
+https://task-manager-web-app-a0jz.onrender.com/api-docs
 
 ---
 
