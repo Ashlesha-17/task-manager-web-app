@@ -24,20 +24,8 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("CORS Not Allowed"));
-        }
-    },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true
+    origin: "*"
 }));
-
-// IMPORTANT: handle preflight requests
-app.options("*", cors());
-
 
 // ================= MIDDLEWARE =================
 app.use(express.json());
