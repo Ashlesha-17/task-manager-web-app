@@ -86,16 +86,17 @@ TaskManagerWebApp/
 │   │   └── index.css
 │
 └── README.md
-
+```
 ---
 
-Installation
-Clone Repository
-git clone <your-repo-link>
+##Installation
+-Clone Repository
+git clone https://github.com/Ashlesha-17/task-manager-web-app
 
 Backend Setup
 cd backend
 npm install
+
 Create .env file
 PORT=5000
 MONGO_URI=your_mongodb_connection
