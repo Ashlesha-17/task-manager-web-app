@@ -16,13 +16,38 @@ const roleMiddleware = require("./middleware/roleMiddleware");
 
 const app = express();
 
-app.use(cors({
-    origin: ["http://localhost:5173", "https://your-vercel-app.vercel.app"],
-    credentials: true
-}));app.use(express.json());
 
+// ================= CORS FIX (PRODUCTION SAFE) =================
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://task-manager-web-app-wine.vercel.app"
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS Not Allowed"));
+        }
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true
+}));
+
+// IMPORTANT: handle preflight requests
+app.options("*", cors());
+
+
+// ================= MIDDLEWARE =================
+app.use(express.json());
+
+
+// ================= ROUTES =================
 app.use("/api/auth", authRoutes);
 
+
+// ================= DATABASE =================
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log("MongoDB Connected");
@@ -31,8 +56,14 @@ mongoose.connect(process.env.MONGO_URI)
     console.log(err);
 });
 
+
+// ================= SWAGGER =================
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
+
+// ================= TASK ROUTES =================
+
+// GET ALL TASKS
 app.get("/tasks", authMiddleware, async (req, res) => {
     try {
         const tasks = await Task.find({ user: req.user.id });
@@ -42,6 +73,8 @@ app.get("/tasks", authMiddleware, async (req, res) => {
     }
 });
 
+
+// GET SINGLE TASK
 app.get("/tasks/:id", authMiddleware, async (req, res) => {
     try {
         const task = await Task.findOne({
@@ -59,6 +92,8 @@ app.get("/tasks/:id", authMiddleware, async (req, res) => {
     }
 });
 
+
+// CREATE TASK
 app.post("/tasks", authMiddleware, async (req, res) => {
     try {
         const { title, description, status } = req.body;
@@ -80,6 +115,8 @@ app.post("/tasks", authMiddleware, async (req, res) => {
     }
 });
 
+
+// UPDATE TASK
 app.patch("/tasks/:id", authMiddleware, async (req, res) => {
     try {
         const task = await Task.findOneAndUpdate(
@@ -98,6 +135,8 @@ app.patch("/tasks/:id", authMiddleware, async (req, res) => {
     }
 });
 
+
+// DELETE TASK (ROLE BASED)
 app.delete(
     "/tasks/:id",
     authMiddleware,
@@ -117,10 +156,14 @@ app.delete(
     }
 );
 
+
+// ================= HOME ROUTE =================
 app.get("/", (req, res) => {
     res.send("Task Manager API Running");
 });
 
+
+// ================= START SERVER =================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
